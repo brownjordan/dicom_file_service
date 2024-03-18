@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import uuid
 from pathlib import Path
 
@@ -35,6 +36,9 @@ class BaseDICOMImage:
         return self.PROCESSED_FILE_LOCATION / Path(filename)
 
     def check_raw_file_exists(self, filename):
+        # first ensure the filename is in the right format (protects against any potential path exploits)
+        if not re.match('[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}', filename, flags=re.IGNORECASE):
+            return False
         if not self.raw_filepath(filename).exists():
             return False
         return True
@@ -99,7 +103,7 @@ class DICOMImageDetail(BaseDICOMImage, Resource):
             raw_dicom_tag = raw_dicom_tag.replace("(", "").replace(")", "").strip()
             dicom_tags = [x.strip() for x in raw_dicom_tag.split(',')]
             if len(dicom_tags) < 2 or not dicom_tags[0] or not dicom_tags[1]:
-                return {'error': "The dicom tag parameter must be in the following format: '(0010,0010)'." }, 400
+                return {'error': "The dicom_tag parameter must be in the following format: '(0010,0010)'." }, 400
                 
             dataset = pydicom.dcmread(self.raw_filepath(file_id))
             try:
@@ -109,7 +113,7 @@ class DICOMImageDetail(BaseDICOMImage, Resource):
                     attribute = attribute_element.to_json()
                 return {'attribute': json.loads(attribute) }
             except TypeError as e:
-                return {'error': 'Invalid DICOM tag'}, 400
+                return {'error': "The dicom_tag parameter must be in the following format: '(0010,0010)'." }, 400
                 
         # if we're not looking up any DICOM header attributes, return the raw image
         return send_file(self.raw_filepath(file_id), mimetype='application/dicom')
