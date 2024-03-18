@@ -87,6 +87,9 @@ class DICOMImage(BaseDICOMImage, Resource):
 class DICOMImageDetail(BaseDICOMImage, Resource):
     """
     Handles retrieving uploaded DICOM files and extracting any specified DICOM header attributes
+    
+    Note: this is a separate class than DICOMImage due to Flask-Restful routing 
+    (get and post in same class doesn't work unless the routes are the same, otherwise a GET without the file_id throws an error)
     """
     
     def get(self, file_id):
@@ -141,11 +144,11 @@ class ConvertedDICOMImage(BaseDICOMImage, Resource):
         
         # ensure the format is correct
         if fileformat not in self.ALLOWED_FORMATS:
-            return {'error': f'Requested file format must be one of: {",".join(self.ALLOWED_FORMATS)}'}
+            return {'error': f'Requested file format must be one of: {",".join(self.ALLOWED_FORMATS)}'}, 400
             
         if fileformat == self.FORMAT_PNG:
             # don't generate the PNG if it already exists
-            final_image_filepath = self.processed_filepath(file_id + "." + self.FORMAT_PNG)
+            final_image_filepath = self.processed_filepath(f"{file_id}.{self.FORMAT_PNG}")
             if not final_image_filepath.exists():
                 # convert the DICOM image to PNG
                 dataset = pydicom.dcmread(self.raw_filepath(file_id))

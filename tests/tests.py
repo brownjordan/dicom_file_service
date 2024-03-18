@@ -29,6 +29,13 @@ if __name__ == '__main__':
     response = requests.get(f"{DETAIL_URL}{file_id}")
     assert response.status_code == 200
     
+    # test retrieving invalid tag
+    params = {
+        "dicom_tag": "0010"
+    }
+    response = requests.get(f"{DETAIL_URL}{file_id}", params=params)
+    assert response.status_code == 400
+    
     # test retrieving tag data
     params = {
         "dicom_tag": "(0010,0010)"
@@ -41,6 +48,10 @@ if __name__ == '__main__':
     assert len(response_json["attribute"]["Value"]) == 1
     assert "Alphabetic" in response_json["attribute"]["Value"][0]
     assert response_json["attribute"]["Value"][0]["Alphabetic"] == "NAYYAR^HARSH"
+    
+    # test retrieving JPEG
+    response = requests.get(f"{DETAIL_URL}{file_id}/jpeg")
+    assert response.status_code == 400
     
     # test retrieving PNG
     response = requests.get(f"{DETAIL_URL}{file_id}/png")
