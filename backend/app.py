@@ -19,11 +19,14 @@ Microservice that will:
 
 Assumptions:
 - authentication and SSL termination will take place in an API Gateway layer in front of this microservice
+- a file backup mechanism is in place (if the host machine dies, all files will be lost)
 
-Note: 
+Notes: 
 - Generally, I'd handle this using direct client upload to an object store using a pre-signed URL,
 and the microservice would just be responsible for generating pre-signed URLs for upload and download,
 as well as storing the file location to a DB.
+- pngs are generated on-demand. If we know we're DEFINITELY going to need a png representation, it would be better
+to start a background task to perform the conversion when the DICOM is initially uploaded
 """
 
 
@@ -72,6 +75,12 @@ class DICOMImage(BaseDICOMImage, Resource):
         # ideally this file would be stored in an object store service instead of locally 
         filedata.save(filepath)
         
+        # ensure the file is actually DICOM
+        if not pydicom.misc.is_dicom(filepath):
+            # remove the file if it's not DICOM
+            os.remove(filepath)
+            return {'error': 'The uploaded file must be a DICOM file'}, 400
+        
         return {'file_id': filename}, 201
 
 
@@ -108,7 +117,6 @@ class DICOMImageDetail(BaseDICOMImage, Resource):
                 attribute = "{}"
                 if attribute_element:
                     attribute = attribute_element.to_json()
-            
                 return {'attribute': json.loads(attribute) }
             except TypeError as e:
                 return {'error': 'Invalid DICOM tag'}, 400
@@ -118,7 +126,6 @@ class DICOMImageDetail(BaseDICOMImage, Resource):
         
         
 class ConvertedDICOMImage(BaseDICOMImage, Resource):
-    
     """
     Return a transcoded representation of the specified DICOM file
     """
