@@ -1,0 +1,13 @@
+
+
+server {
+    # allow uploading files up to 10M
+    client_max_body_size 10M;
+    
+    listen       80;
+    server_name  localhost;
+    location / {
+        proxy_pass   http://backend:8000;
+    }
+
+}

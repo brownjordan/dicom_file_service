@@ -1,0 +1,10 @@
+# Flask
+Werkzeug==2.3.7
+Flask==2.3.3
+flask_restful==0.3.10
+
+# DICOM image manipulation
+pydicom==2.4.4
+numpy==1.26.4
+pillow==10.2.0
+pypng==0.20220715.0
