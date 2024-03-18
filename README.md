@@ -39,3 +39,11 @@ $ curl "http://localhost:80/dicom-image/<FILE_ID>?dicom_tag=(0010,0010)"
 ```bash
 $ curl "http://localhost:80/dicom-image/<FILE_ID>/png"
 ```
+
+### Testing
+
+There are some very basic integration tests which can be run with docker:
+
+```bash
+$ docker-compose --profile testing up
+```

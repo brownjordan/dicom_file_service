@@ -103,9 +103,8 @@ class DICOMImageDetail(BaseDICOMImage, Resource):
         parser.add_argument('dicom_tag', type=str, location='args')
         args = parser.parse_args()
         if "dicom_tag" in args and args["dicom_tag"]:
-            # split the tag into separate components (group and element)
+            # parse and validate the DICOM tag
             raw_dicom_tag = args["dicom_tag"]
-            # remove any enclosing brackets
             raw_dicom_tag = raw_dicom_tag.replace("(", "").replace(")", "").strip()
             dicom_tags = [x.strip() for x in raw_dicom_tag.split(',')]
             if len(dicom_tags) < 2 or not dicom_tags[0] or not dicom_tags[1]:

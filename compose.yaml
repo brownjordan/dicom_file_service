@@ -21,6 +21,18 @@ services:
       - backend
     networks:
       - frontnet
+      
+  tests:
+    build: tests
+    depends_on: 
+      - backend
+      - proxy
+    networks:
+      - frontnet
+    profiles:
+      - testing
+    volumes:
+      - ./tests/:/tests
 
 networks:
   backnet:
