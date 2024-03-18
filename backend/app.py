@@ -16,19 +16,7 @@ Microservice that will:
 - accept and store an uploaded DICOM file
 - extract and return any DICOM header attribute based on a DICOM Tag as a query parameter
 - convert the file into a PNG for browser viewing
-
-Assumptions:
-- authentication and SSL termination will take place in an API Gateway layer in front of this microservice
-- a file backup mechanism is in place (if the host machine dies, all files will be lost)
-
-Notes: 
-- Generally, I'd handle this using direct client upload to an object store using a pre-signed URL,
-and the microservice would just be responsible for generating pre-signed URLs for upload and download,
-as well as storing the file location to a DB.
-- pngs are generated on-demand. If we know we're DEFINITELY going to need a png representation, it would be better
-to start a background task to perform the conversion when the DICOM is initially uploaded
 """
-
 
 app = Flask(__name__)
 api = Api(app)
